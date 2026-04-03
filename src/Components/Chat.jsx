@@ -165,7 +165,7 @@ function ChartRenderer({ spec }) {
 
 // ───────────────────────── Main Analytics Page ─────────────────────────
 
-export default function Chat() {
+export default function Chat({ initialPrompt, onPromptConsumed }) {
     const [messages, setMessages] = useState([
         {
             id: 1,
@@ -181,13 +181,39 @@ export default function Chat() {
     
     const chatEndRef = useRef(null);
     const textareaRef = useRef(null);
+    // Ref to hold handleSend so the initialPrompt effect always sees the latest version
+    const handleSendRef = useRef(null);
 
     useEffect(() => {
         chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages]);
 
-    const handleSend = async () => {
-        const trimmed = input.trim();
+    // Auto-fire when a prompt arrives from the home page — fires exactly once.
+    // Uses a closure-local `fired` flag per effect invocation so StrictMode's
+    // cleanup + re-run cycle doesn't prevent the call or duplicate it.
+    useEffect(() => {
+        const prompt = initialPrompt?.trim();
+        if (!prompt) return;
+
+        let fired = false; // local to this effect invocation
+
+        // 150 ms gives React enough time to finish the StrictMode cleanup
+        // cycle before we attempt to call handleSend
+        const timer = setTimeout(() => {
+            if (fired) return;   // safety: should never be true here
+            fired = true;
+            handleSendRef.current?.(prompt);
+            onPromptConsumed?.();
+        }, 150);
+
+        return () => {
+            clearTimeout(timer); // StrictMode cleanup cancels this invocation's timer
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialPrompt]);
+
+    const handleSend = async (overrideText) => {
+        const trimmed = (overrideText ?? input).trim();
         if (!trimmed || loading) return;
 
         const now = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -197,6 +223,9 @@ export default function Chat() {
         setMessages(prev => [...prev, userMsg]);
         setInput("");
         setLoading(true);
+
+        // Keep ref in sync
+        handleSendRef.current = handleSend;
 
         const loadingId = Date.now() + 1;
         setMessages(prev => [...prev, { id: loadingId, role: "assistant", loading: true, content: "", time: now }]);
@@ -255,6 +284,9 @@ export default function Chat() {
             textareaRef.current?.focus();
         }
     };
+
+    // Keep the ref updated every render
+    handleSendRef.current = handleSend;
 
     const handleKey = (e) => {
         if (e.key === "Enter" && !e.shiftKey) {

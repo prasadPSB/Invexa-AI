@@ -1,21 +1,24 @@
 import { Database, Send, Sparkle, TableProperties, Circle, ArrowRight, LayoutDashboard, Hash, Rows3, Eye } from "lucide-react";
 import { useEffect, useState } from "react";
+import LightModeImage from "../assets/light.jpg";
+import NightModeImage from "../assets/night.jpg";
 
-export default function HomePage({ setSelected, user }) {
+
+export default function HomePage({ setSelected, user, onSendPrompt, isDark }) {
     const API_BASE = "http://localhost:8000";
     const [tables, setTables] = useState(0);
     const [rows, setRows] = useState(0);
-    const [cols, setCols] = useState(0)
-    const [engine, setEngine] = useState("SQLite");
+    const [engine] = useState("SQLite");
     const [tablesData, setTablesData] = useState([])
+    const [homeInput, setHomeInput] = useState("")
 
     useEffect(() => {
         fetch(`${API_BASE}/db/tables`)
             .then(res => res.json())
             .then(data => {
-                setTables(data.tables?.length-1 || 0);
-                setRows(data.tables?.filter(t=>t.name!=="saved_charts").reduce((sum, t) => sum + (t.row_count || 0), 0) || 0)
-                const newTables = data.tables.filter(t=>t.name!=="saved_charts" ).map(t => ({
+                setTables(data.tables?.length - 1 || 0);
+                setRows(data.tables?.filter(t => t.name !== "saved_charts").reduce((sum, t) => sum + (t.row_count || 0), 0) || 0)
+                const newTables = data.tables.filter(t => t.name !== "saved_charts").map(t => ({
                     name: t.name,
                     columns: t.col_count || 0,
                     rows: t.row_count || 0,
@@ -33,47 +36,65 @@ export default function HomePage({ setSelected, user }) {
 
     return (
         <div className="flex flex-col min-h-full bg-gray-950 font-sans text-white">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "32px 32px" }}></div>
+            <div>
+                {/* Background Pattern */}
+                <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "radial-gradient(#fff 1px, transparent 1px)", backgroundSize: "32px 32px" }}></div>
 
-            <div className="flex-1 max-w-[1400px] mx-auto w-full px-8 py-12 z-10 flex flex-col gap-12">
+                <div className="flex-1 max-w-[1400p] mx-auto w-full px-8 py-12 z-10 flex flex-col gap-12" style={{ backgroundImage: `url(${isDark ? NightModeImage : LightModeImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
 
-                {/* ── Header Section ── */}
-                <div className="flex flex-col items-center justify-center text-center mt-6 animate-fade-in">
-                    <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-4 tracking-tight">
-                        {(() => {
-                            const h = new Date().getHours();
-                            const greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
-                            const displayName = user?.name
-                                ? user.name.charAt(0).toUpperCase() + user.name.slice(1)
-                                : "there";
-                            return `${greet}, ${displayName}`;
-                        })()}
-                    </h1>
-                    <p className="text-gray-400 max-w-lg text-sm sm:text-base leading-relaxed">
-                        Your AI-powered database assistant is ready. Ask questions, generate graphs, or manipulate data via natural language.
-                    </p>
-                </div>
+                    {/* ── Header Section ── */}
+                    <div className="flex flex-col items-center justify-center text-center mt-6 animate-fade-in">
+                        <h1 className="text-4xl sm:text-5xl font-bold bg-linear-to-r from-white to-gray-400 bg-clip-text text-transparent mb-8 tracking-tight">
+                            {(() => {
+                                const h = new Date().getHours();
+                                const greet = h < 12 ? "Good Morning" : h < 18 ? "Good Afternoon" : "Good Evening";
+                                const displayName = user?.name
+                                    ? user.name.charAt(0).toUpperCase() + user.name.slice(1)
+                                    : "there";
+                                return `${greet}, ${displayName}`;
+                            })()}
+                        </h1>
+                        <p className="text-gray-400 max-w-lg text-sm sm:text-base leading-relaxed">
+                            Your AI-powered database assistant is ready. Ask questions, generate graphs, or manipulate data via natural language.
+                        </p>
+                    </div>
 
-                {/* ── Main Prompt Input ── */}
-                <div className="w-full max-w-3xl mx-auto -mt-4 mb-2 animate-fade-in" style={{ animationDelay: "100ms" }}>
-                    <div className="flex flex-col bg-gray-900 border border-gray-700/60 hover:border-indigo-500/40 focus-within:border-indigo-500/60 transition-all duration-300 rounded-3xl p-2 shadow-2xl shadow-indigo-900/10">
-                        <textarea
-                            rows={3}
-                            placeholder="How much revenue did we make this week?"
-                            className="bg-transparent text-white placeholder-gray-500 outline-none w-full resize-none p-4 text-sm sm:text-base leading-relaxed overflow-y-auto [scrollbar-width:none]"
-                        />
-                        <div className="flex justify-between items-center px-4 pb-2 pt-1 border-t border-gray-800/40">
-                            <span className="text-xs font-mono text-gray-500 flex items-center gap-2">
-                                <Sparkle size={12} className="text-indigo-400" />
-                                Try asking for a chart or data summary
-                            </span>
-                            <button
-                                onClick={() => setSelected?.("Analytics")}
-                                className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white flex items-center justify-center shadow-lg shadow-indigo-900/30 transition-transform hover:scale-105 active:scale-95"
-                            >
-                                <Send size={16} />
-                            </button>
+                    {/* ── Main Prompt Input ── */}
+                    <div className="w-full max-w-3xl mx-auto -mt-4 mb-2 animate-fade-in" style={{ animationDelay: "100ms" }}>
+                        <div className="flex flex-col bg-[#f1f1f1] border border-gray-700/60 hover:border-indigo-500/40 focus-within:border-indigo-500/60 transition-all duration-300 rounded-3xl p-2 shadow-2xl shadow-indigo-900/10">
+                            <textarea
+                                rows={3}
+                                placeholder="Ask me to visualise your data — e.g. 'Show a bar chart of users by role'"
+                                value={homeInput}
+                                onChange={e => setHomeInput(e.target.value)}
+                                onKeyDown={e => {
+                                    if (e.key === "Enter" && !e.shiftKey && homeInput.trim()) {
+                                        e.preventDefault();
+                                        onSendPrompt?.(homeInput.trim());
+                                        setHomeInput("");
+                                    }
+                                }}
+                                className="bg-transparent text-white placeholder-gray-500 outline-none w-full resize-none p-4 text-sm sm:text-base leading-relaxed overflow-y-auto [scrollbar-width:none]"
+                            />
+                            <div className="flex justify-between items-center px-4 pb-2 pt-1 border-t border-gray-800/40">
+                                <span className="text-xs font-mono text-gray-500 flex items-center gap-2 hover:text-indigo-400 cursor-pointer" onClick={() => setSelected?.("Analytics")}>
+                                    <Sparkle size={12} className="text-indigo-400" />
+                                    Try asking for a chart or data summary
+                                </span>
+                                <button
+                                    disabled={!homeInput.trim()}
+                                    onClick={() => {
+                                        if (!homeInput.trim()) return;
+                                        onSendPrompt?.(homeInput.trim());
+                                        setHomeInput("");
+                                    }}
+                                    className="w-10 h-10 rounded-xl bg-linear-to-br from-indigo-500 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-indigo-900/30 transition-all
+                                    enabled:hover:from-indigo-400 enabled:hover:to-violet-500 enabled:hover:scale-105 enabled:active:scale-95
+                                    disabled:opacity-30 disabled:cursor-not-allowed disabled:shadow-none"
+                                >
+                                    <Send size={16} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -91,7 +112,7 @@ export default function HomePage({ setSelected, user }) {
                         </div>
                         <div className="text-sm text-gray-400 leading-relaxed font-light flex-1">
                             <p className="mb-4">
-                                The database has seen rapid growth today. Specifically, the <span className="text-indigo-300 font-mono">Users</span> and <span className="text-indigo-300 font-mono">Orders</span> tables have contributed to 85% of incoming rows over the last 24 hours.
+                                The database has seen rapid growth today. Specifically, the <span className="text-indigo-400 font-mono">Users</span> and <span className="text-indigo-400 font-mono">Orders</span> tables have contributed to 85% of incoming rows over the last 24 hours.
                             </p>
                             <p>
                                 Based on your last prompt, sales dipped around 4:00 PM yesterday. You might want to generate a <strong>Revenue Line Chart</strong> in the Analytics tab.
@@ -174,6 +195,6 @@ export default function HomePage({ setSelected, user }) {
                 </div>
 
             </div>
-        </div>
+        </div >
     );
 }

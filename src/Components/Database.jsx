@@ -112,7 +112,7 @@ function ChatMessage({ msg }) {
             {/* Bubble */}
             <div className={`max-w-[80%] ${isUser ? "items-end" : "items-start"} flex flex-col`}>
                 <div className={`rounded-2xl px-4 py-3 text-sm leading-relaxed shadow-md ${isUser
-                    ? "bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-tr-sm"
+                    ? "bg-linear-to-br from-emerald-500 to-teal-600 text-white rounded-tr-sm"
                     : msg.status === "error"
                         ? "bg-red-900/40 border border-red-700/50 text-red-300 rounded-tl-sm"
                         : "bg-gray-800 border border-gray-700/60 text-gray-200 rounded-tl-sm"
@@ -230,7 +230,7 @@ function DatabasePreview({ refreshTrigger }) {
         <div className="flex flex-col h-full min-h-0">
             {/* Tables Sidebar Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800/80 bg-gray-900/50">
-                <div className="flex items-center gap-2 text-sm font-semibold text-gray-300">
+                <div className="flex items-center gap-2 text-md font-semibold text-gray-300">
                     <LayoutGrid size={15} className="text-emerald-400" />
                     Tables
                     <span className="bg-emerald-500/20 text-emerald-400 text-xs px-2 py-0.5 rounded-full font-mono">
@@ -251,7 +251,7 @@ function DatabasePreview({ refreshTrigger }) {
             <div className="flex flex-1 min-h-0 overflow-hidden">
 
                 {/* Table List */}
-                <div className="w-44 flex-shrink-0 border-r border-gray-800/80 overflow-y-auto bg-gray-950/40">
+                <div className="w-auto shrink-0 border-r border-gray-800/80 overflow-y-auto bg-gray-950/40">
                     {error ? (
                         <div className="p-3 text-xs text-red-400">{error}</div>
                     ) : loadingTables ? (
@@ -273,13 +273,13 @@ function DatabasePreview({ refreshTrigger }) {
                                     key={t.name}
                                     onClick={() => setSelectedTable(t.name)}
                                     className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-all duration-200 group ${selectedTable === t.name
-                                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                                        : "text-gray-400 hover:bg-gray-800/60 hover:text-gray-200 border border-transparent"
+                                        ? "bg-emerald-500/20 text-emerald-500 border border-emerald-500/30"
+                                        : "text-gray-300 hover:bg-gray-800/60 hover:text-gray-200 border border-transparent"
                                         }`}
                                 >
-                                    <Table2 size={12} className={selectedTable === t.name ? "text-emerald-400" : "text-gray-600 group-hover:text-gray-400"} />
+                                    <Table2 size={12} className={selectedTable === t.name ? "text-emerald-400" : "text-gray-700 group-hover:text-gray-600"} />
                                     <span className="truncate font-mono">{t.name}</span>
-                                    {selectedTable === t.name && <ChevronRight size={10} className="ml-auto flex-shrink-0" />}
+                                    {selectedTable === t.name && <ChevronRight size={10} className="ml-auto shrink-0" />}
                                 </button>
                             ))}
                         </div>
@@ -291,7 +291,7 @@ function DatabasePreview({ refreshTrigger }) {
                     {selectedTable ? (
                         <>
                             {/* Table Header */}
-                            <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900/30 border-b border-gray-800/80 flex-shrink-0">
+                            <div className="flex items-center justify-between px-4 py-2.5 bg-gray-900/30 border-b border-gray-800/80 shrink-0">
                                 <div className="flex items-center gap-2">
                                     <Eye size={13} className="text-indigo-400" />
                                     <span className="text-sm font-mono font-semibold text-white">{selectedTable}</span>
@@ -320,11 +320,11 @@ function DatabasePreview({ refreshTrigger }) {
                                 ) : tableData?.error ? (
                                     <div className="p-6 text-xs text-red-400">{tableData.error}</div>
                                 ) : tableData?.rows?.length === 0 ? (
-                                    <table className="w-full text-xs text-gray-300 border-collapse">
+                                    <table className="w-full text-sm text-gray-300 border-collapse">
                                         <thead className="sticky top-0 z-10">
                                             <tr className="bg-gray-900/90 backdrop-blur">
                                                 {tableData.columns.map(col => (
-                                                    <th key={col} className="px-4 py-2.5 text-left text-emerald-400 font-mono font-semibold border-b border-gray-800 whitespace-nowrap">
+                                                    <th key={col} className="px-4 py-2.5 text-left text-emerald-00 font-mono font-semibold border-b border-gray-800 whitespace-nowrap">
                                                         {col}
                                                     </th>
                                                 ))}
@@ -344,7 +344,7 @@ function DatabasePreview({ refreshTrigger }) {
                                         <thead className="sticky top-0 z-10">
                                             <tr className="bg-gray-900/90 backdrop-blur">
                                                 {tableData.columns.map(col => (
-                                                    <th key={col} className="px-4 py-2.5 text-left text-emerald-400 font-mono font-semibold border-b border-gray-800 whitespace-nowrap">
+                                                    <th key={col} className="px-4 py-2.5 text-left text-emerald-600 font-mono text-[14px] border-b border-gray-800 whitespace-nowrap">
                                                         {col}
                                                     </th>
                                                 ))}

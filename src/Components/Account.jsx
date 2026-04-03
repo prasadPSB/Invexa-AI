@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-    User, Mail, LayoutTemplate, ShieldCheck, Key, Settings,
+    User, Mail, LayoutTemplate, ShieldCheck, Key, Settings, LogOut,
     Database as DbIcon, HardDrive, Cpu, Clock, Activity, AlertCircle,
     BarChart3, LineChart as LineIcon, PieChart as PieIcon, ScatterChart as ScatterIcon, Search, Maximize2, X
 } from "lucide-react";
@@ -11,7 +11,7 @@ import {
 
 const API_BASE = "http://localhost:8000";
 
-export default function Account() {
+export default function Account({ onSignOut, user }) {
     const [dbInfo, setDbInfo] = useState({ tables: 0, rows: 0, loading: true });
     const [history, setHistory] = useState([]);
     const [loadingHistory, setLoadingHistory] = useState(true);
@@ -144,10 +144,13 @@ export default function Account() {
     }, []);
 
     const userProfile = {
-        name: "Prasad Bhor",
-        email: "prasad.bhor@example.com",
-        role: "Admin Organizer",
-        joined: "March 2026",
+        name: user?.name || user?.email?.split("@")[0] || "User",
+        email: user?.email || "—",
+        role: user?.role || "User",
+        joined: user?.joined ||
+            (user?.created_at
+                ? new Date(user.created_at).toLocaleDateString([], { month: "long", year: "numeric" })
+                : "—"),
     };
 
     return (
@@ -179,7 +182,7 @@ export default function Account() {
                         {/* User Profile Card */}
                         <div className="bg-gray-900/40 border border-gray-800/80 rounded-3xl p-6 backdrop-blur-xl shadow-lg">
                             <div className="flex flex-col items-center text-center">
-                                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-3xl font-bold text-white shadow-xl shadow-indigo-900/20 mb-4 border-4 border-gray-950">
+                                <div className="w-20 h-20 rounded-full bg-linear-to-br from-indigo-500 to-violet-600 flex items-center justify-center text-3xl font-bold text-white shadow-xl shadow-indigo-900/20 mb-4 border-4 border-gray-950">
                                     {userProfile.name.charAt(0)}
                                 </div>
                                 <h2 className="text-xl font-bold text-white">{userProfile.name}</h2>
@@ -202,6 +205,15 @@ export default function Account() {
                                     <span>API Access: <span className="text-emerald-400 font-mono">Active</span></span>
                                 </div>
                             </div>
+
+                            {/* Sign Out Button */}
+                            <button
+                                onClick={onSignOut}
+                                className="mt-6 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/25 hover:border-red-500/40 hover:text-red-600 transition-all duration-200 text-sm font-medium group"
+                            >
+                                <LogOut size={15} className="transition-transform group-hover:-translate-x-0.5" />
+                                Sign Out
+                            </button>
                         </div>
 
                         {/* Database Info Card */}
@@ -227,7 +239,7 @@ export default function Account() {
 
                                 <div className="p-3 bg-gray-950 border border-gray-800/60 rounded-xl">
                                     <span className="text-[10px] text-gray-500 uppercase tracking-widest block mb-1">Connection UI</span>
-                                    <code className="text-xs text-indigo-300">sqlite:///sql_ai.db</code>
+                                    <code className="text-xs text-indigo-500">sqlite:///sql_ai.db</code>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-3 mt-2">

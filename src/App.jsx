@@ -10,7 +10,7 @@ function App() {
     return <Auth onAuth={setUser} />
   }
 
-  return <Merger user={user} />
+  return <Merger user={user} onSignOut={() => setUser(null)} />
 }
 
 export default App
